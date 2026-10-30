@@ -1,0 +1,20 @@
+{
+    "geode": "5.11.2",
+    "gd": {
+        "win": "2.2081",
+        "android": "2.2081",
+        "mac": "2.2081"
+    },
+    "id": "vinz.framecounter",
+    "name": "Frame Window Counter",
+    "version": "v1.0.0",
+    "developer": "Vinzplaing",
+    "description": "Auto frame window counter: records your clicks, then tests how many ticks early/late each click can be.",
+    "tags": ["gameplay", "utility"],
+    "dependencies": {
+        "geode.node-ids": {
+            "version": ">=v1.23.0",
+            "importance": "suggested"
+        }
+    }
+}
