@@ -8,7 +8,7 @@ using namespace geode::prelude;
 // One recorded input event (press or release) at a physics tick.
 struct ClickInput {
     int tick;
-    int button;
+    int button;   // 1 = jump, 2 = left, 3 = right (same as GDR)
     bool down;
     bool p1;
 };
@@ -28,15 +28,24 @@ public:
         return s;
     }
 
+    // Macro used for counting (recorded or imported)
+    std::vector<ClickInput> loaded;
+    std::string macroName;
+
     // Recording
-    std::vector<ClickInput> current;   // inputs of the attempt in progress
-    std::vector<ClickInput> saved;     // inputs of the last completed run
+    bool recording = false;
+    std::vector<ClickInput> recBuf;
 
     // Counting session
     bool counting = false;
     bool trialRunning = false;
     bool injecting = false;
     int endTick = 0;
+
+    void startRecording();
+    void stopRecording();
+    void updateRecLabel();
+    int pressCount() const;
 
     bool startCounting();
     void beginTrial();
@@ -59,8 +68,10 @@ private:
     int maxOk = 0;
     bool curValid = false;
     Ref<CCLabelBMFont> label;
+    Ref<CCLabelBMFont> recLabel;
 
     void updateLabel();
     void removeLabel();
+    void removeRecLabel();
     void restoreSpeed();
 };

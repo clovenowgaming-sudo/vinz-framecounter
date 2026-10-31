@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
-project(FrameCounter VERSION 1.0.0)
+project(FrameCounter VERSION 1.1.0)
 
 file(GLOB SOURCES CONFIGURE_DEPENDS src/*.cpp)
 add_library(${PROJECT_NAME} SHARED ${SOURCES})
@@ -14,4 +14,9 @@ if (NOT DEFINED ENV{GEODE_SDK})
 endif()
 
 add_subdirectory($ENV{GEODE_SDK} ${CMAKE_CURRENT_BINARY_DIR}/geode)
+
+# GDR2 replay format (maxnut/GDReplayFormat, open source)
+CPMAddPackage("gh:maxnut/GDReplayFormat#gdr2")
+target_link_libraries(${PROJECT_NAME} libGDR)
+
 setup_geode_mod(${PROJECT_NAME})

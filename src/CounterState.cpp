@@ -6,16 +6,66 @@ static constexpr int MAX_OFFSET = 60;          // max ticks tested each side
 static constexpr float COUNT_TIME_SCALE = 8.f; // speed while counting
 static constexpr float TICK_MS = 1000.f / 240.f;
 
+// ---- Recording --------------------------------------------------------------------------------
+
+int CounterState::pressCount() const {
+    int n = 0;
+    for (auto const& in : loaded) if (in.down) n++;
+    return n;
+}
+
+void CounterState::startRecording() {
+    recording = true;
+    recBuf.clear();
+    updateRecLabel();
+}
+
+void CounterState::stopRecording() {
+    if (!recording) return;
+    recording = false;
+    removeRecLabel();
+    if (!recBuf.empty()) {
+        loaded = recBuf;
+        macroName = "recorded";
+        Notification::create(fmt::format("Recorded {} inputs", loaded.size()), NotificationIcon::Success)->show();
+    }
+    recBuf.clear();
+}
+
+void CounterState::updateRecLabel() {
+    auto pl = PlayLayer::get();
+    if (!pl || !recording) return;
+    if (!recLabel) {
+        recLabel = CCLabelBMFont::create("", "bigFont.fnt");
+        recLabel->setAnchorPoint({0.f, 1.f});
+        recLabel->setScale(0.4f);
+        recLabel->setColor({255, 80, 80});
+        pl->addChild(recLabel, 1000);
+    }
+    auto winSize = CCDirector::get()->getWinSize();
+    recLabel->setPosition({8.f, winSize.height - 8.f});
+    recLabel->setString(fmt::format("REC  {} inputs", recBuf.size()).c_str());
+}
+
+void CounterState::removeRecLabel() {
+    if (recLabel) {
+        recLabel->removeFromParent();
+        recLabel = nullptr;
+    }
+}
+
+// ---- Counting ---------------------------------------------------------------------------------
+
 bool CounterState::startCounting() {
     if (!PlayLayer::get()) return false;
 
-    macro = current.empty() ? saved : current;
+    macro = loaded;
     targets.clear();
     for (size_t i = 0; i < macro.size(); i++) {
         if (macro[i].down) targets.push_back(i);
     }
     if (targets.empty()) {
-        Notification::create("No clicks recorded yet. Play the level first.", NotificationIcon::Warning)->show();
+        Notification::create("No macro loaded. Record or import one first.", NotificationIcon::Warning)->show();
         return false;
     }
 
