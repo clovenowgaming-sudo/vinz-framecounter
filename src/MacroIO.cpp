@@ -124,7 +124,7 @@ bool importMacro(fs::path const& path, std::vector<ClickInput>& out, std::string
         return false;
     }
 
-    auto res = FCReplay::importData(std::span<uint8_t const>(bytes.data(), bytes.size()));
+    auto res = FCReplay::importData(std::span<uint8_t>(bytes.data(), bytes.size()));
     if (res.isErr()) {
         err = "GDR import failed";
         return false;
