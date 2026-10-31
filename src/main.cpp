@@ -10,20 +10,21 @@ class $modify(FCBaseLayer, GJBaseGameLayer) {
         auto& s = CounterState::get();
         auto pl = PlayLayer::get();
         if (!s.counting && !s.injecting && pl && static_cast<GJBaseGameLayer*>(pl) == this) {
-            s.current.push_back({m_gameState.m_currentProgress, button, down, isPlayer1});
+            int tick = static_cast<int>(m_gameState.m_currentProgress);
+            s.current.push_back(ClickInput{tick, button, down, isPlayer1});
         }
         GJBaseGameLayer::handleButton(down, button, isPlayer1);
     }
 
-    void processCommands(float dt) {
+    void processCommands(float dt, bool isHalfTick, bool isLastTick) {
         auto& s = CounterState::get();
         auto pl = PlayLayer::get();
         if (s.counting && s.trialRunning && pl && static_cast<GJBaseGameLayer*>(pl) == this) {
-            int tick = m_gameState.m_currentProgress;
+            int tick = static_cast<int>(m_gameState.m_currentProgress);
             s.inject(this, tick);
             if (tick >= s.endTick) s.requestFinish(true);
         }
-        GJBaseGameLayer::processCommands(dt);
+        GJBaseGameLayer::processCommands(dt, isHalfTick, isLastTick);
     }
 };
 
@@ -71,15 +72,16 @@ class $modify(FCPauseLayer, PauseLayer) {
         );
         btn->setID("count-button"_spr);
 
-        if (auto menu = this->getChildByID("right-button-menu")) {
-            menu->addChild(btn);
-            menu->updateLayout();
+        auto existingMenu = this->getChildByID("right-button-menu");
+        if (existingMenu) {
+            existingMenu->addChild(btn);
+            existingMenu->updateLayout();
         } else {
-            auto menu = CCMenu::create();
-            menu->addChild(btn);
+            auto newMenu = CCMenu::create();
+            newMenu->addChild(btn);
             auto winSize = CCDirector::get()->getWinSize();
-            menu->setPosition({winSize.width - 50.f, 40.f});
-            this->addChild(menu);
+            newMenu->setPosition({winSize.width - 50.f, 40.f});
+            this->addChild(newMenu);
         }
     }
 
