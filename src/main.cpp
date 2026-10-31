@@ -67,22 +67,19 @@ class $modify(FCPauseLayer, PauseLayer) {
     void customSetup() {
         PauseLayer::customSetup();
 
-        auto btn = CCMenuItemSpriteExtra::create(
-            ButtonSprite::create("Count"), this, menu_selector(FCPauseLayer::onCount)
-        );
+        auto spr = ButtonSprite::create("Count");
+        spr->setScale(0.85f);
+        auto btn = CCMenuItemSpriteExtra::create(spr, this, menu_selector(FCPauseLayer::onCount));
         btn->setID("count-button"_spr);
 
-        auto existingMenu = this->getChildByID("right-button-menu");
-        if (existingMenu) {
-            existingMenu->addChild(btn);
-            existingMenu->updateLayout();
-        } else {
-            auto newMenu = CCMenu::create();
-            newMenu->addChild(btn);
-            auto winSize = CCDirector::get()->getWinSize();
-            newMenu->setPosition({winSize.width - 50.f, 40.f});
-            this->addChild(newMenu);
-        }
+        // Own menu on the right side, level with the middle button row.
+        auto winSize = CCDirector::get()->getWinSize();
+        auto menu = CCMenu::create();
+        menu->setID("count-menu"_spr);
+        menu->setPosition({0.f, 0.f});
+        btn->setPosition({winSize.width - 62.f, winSize.height * 0.40f});
+        menu->addChild(btn);
+        this->addChild(menu, 10);
     }
 
     void onCount(CCObject*) {
